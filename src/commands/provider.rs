@@ -271,7 +271,7 @@ impl ProviderCommands {
             })?;
         let defaults = existing_config
             .map(|c| c.config.clone())
-            .or_else(|| PROVIDER_REGISTRY.default_config(provider_type))
+            .or_else(|| PROVIDER_REGISTRY.default_config(provider_type).ok())
             .unwrap_or_else(|| serde_json::json!({}));
 
         let config = prompt_from_schema(&*ctx.ui, &schema, &defaults)?;

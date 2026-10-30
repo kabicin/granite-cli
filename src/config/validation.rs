@@ -910,7 +910,7 @@ mod tests {
                 };
                 let mut settings = crate::capabilities::CAPABILITY_REGISTRY
                     .default_config(type_name)
-                    .unwrap_or_else(|| serde_json::json!({}));
+                    .unwrap_or_else(|_| serde_json::json!({}));
                 settings[config_key.as_str()] = serde_json::json!("");
 
                 let err = crate::capabilities::CAPABILITY_REGISTRY

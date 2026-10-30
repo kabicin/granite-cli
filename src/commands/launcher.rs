@@ -260,7 +260,7 @@ impl LauncherCommands {
             .config()
             .get_launcher(&instance_id)
             .map(|lc| lc.config.clone())
-            .or_else(|| LAUNCHER_REGISTRY.default_config(launcher_type))
+            .or_else(|| LAUNCHER_REGISTRY.default_config(launcher_type).ok())
             .unwrap_or_else(|| serde_json::json!({}));
         alog_channel!(MessageLevel::Debug3, "Defaults: {:#?}", defaults);
 

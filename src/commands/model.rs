@@ -735,7 +735,7 @@ impl ModelCommands {
         let defaults = existing_config
             .as_ref()
             .map(|c| c.config.clone())
-            .or_else(|| MODEL_REGISTRY.default_config(model_type))
+            .or_else(|| MODEL_REGISTRY.default_config(model_type).ok())
             .unwrap_or_else(|| serde_json::json!({}));
         let model_specific_cfg = prompt_from_schema(&*ctx.ui, &schema, &defaults)?;
 

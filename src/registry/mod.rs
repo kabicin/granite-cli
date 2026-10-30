@@ -333,19 +333,23 @@ macro_rules! define_factory {
                     self.registry.get(name).map(|x| x.config_schema())
                 }
 
-                /// Get the default config value for a specific implementation by name.
+                /// Returns the default config for the named registration.
                 ///
-                /// # Arguments
+                /// # Errors
                 ///
-                /// * `name` - The name of the implementation
-                ///
-                /// # Returns
-                ///
-                /// * `Some(value)` - Default config value, if found
-                /// * `None` - If name not registered
+                /// [`ConstructError::UnknownType`] if the name is not registered, the same
+                /// error `construct` reports for it.
                 #[allow(unused)]
-                pub(crate) fn default_config(&self, name: &str) -> Option<serde_json::Value> {
-                    self.registry.get(name).map(|x| x.default_config())
+                pub(crate) fn default_config(
+                    &self,
+                    name: &str,
+                ) -> Result<serde_json::Value, $crate::registry::ConstructError> {
+                    self.registry
+                        .get(name)
+                        .map(|x| x.default_config())
+                        .ok_or_else(|| $crate::registry::ConstructError::UnknownType {
+                            type_name: name.to_string(),
+                        })
                 }
             }
         }
@@ -647,7 +651,9 @@ mod tests {
         factory.register::<TestImpl1>("impl1");
 
         // TestImpl1 uses NoConfig, which serializes to an empty object.
-        let value = factory.default_config("impl1").unwrap();
+        let value = factory
+            .default_config("impl1")
+            .expect("impl1 is registered");
         assert_eq!(value, serde_json::json!({}));
     }
 
@@ -656,13 +662,15 @@ mod tests {
         let mut factory = TestTraitFactory::new();
         factory.register::<TestImpl2>("impl2");
 
-        let value = factory.default_config("impl2").unwrap();
+        let value = factory
+            .default_config("impl2")
+            .expect("impl2 is registered");
         assert_eq!(value, serde_json::json!({ "value": 0 }));
     }
 
     #[test]
     fn test_default_config_unknown() {
         let factory = TestTraitFactory::new();
-        assert!(factory.default_config("unknown").is_none());
+        assert!(factory.default_config("unknown").is_err());
     }
 }

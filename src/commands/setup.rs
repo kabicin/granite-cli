@@ -5117,7 +5117,9 @@ mod tests {
         let ctx = ctx_with_provider(
             "my-ollama",
             "ollama",
-            PROVIDER_REGISTRY.default_config("ollama").unwrap(),
+            PROVIDER_REGISTRY
+                .default_config("ollama")
+                .expect("ollama is registered"),
         );
 
         let selection = SetupCommands::auto_selection(

@@ -511,10 +511,16 @@ fn constructs(kind: RefKind, type_name: &str, settings: &serde_json::Value) -> b
 /// A type's default settings, as its registry entry declares them.
 fn default_settings(kind: RefKind, type_name: &str) -> Option<serde_json::Value> {
     match kind {
-        RefKind::Launcher => crate::launchers::LAUNCHER_REGISTRY.default_config(type_name),
-        RefKind::Capability => crate::capabilities::CAPABILITY_REGISTRY.default_config(type_name),
-        RefKind::Model => crate::models::MODEL_REGISTRY.default_config(type_name),
-        RefKind::Provider => crate::providers::PROVIDER_REGISTRY.default_config(type_name),
+        RefKind::Launcher => crate::launchers::LAUNCHER_REGISTRY
+            .default_config(type_name)
+            .ok(),
+        RefKind::Capability => crate::capabilities::CAPABILITY_REGISTRY
+            .default_config(type_name)
+            .ok(),
+        RefKind::Model => crate::models::MODEL_REGISTRY.default_config(type_name).ok(),
+        RefKind::Provider => crate::providers::PROVIDER_REGISTRY
+            .default_config(type_name)
+            .ok(),
     }
 }
 
@@ -797,6 +803,7 @@ mod tests {
             settings.get("timeout_secs"),
             crate::providers::PROVIDER_REGISTRY
                 .default_config("ollama")
+                .ok()
                 .as_ref()
                 .and_then(|defaults| defaults.get("timeout_secs")),
             "the field that could not be read now holds its type's default"
